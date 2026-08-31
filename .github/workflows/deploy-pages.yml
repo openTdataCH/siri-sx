@@ -1,0 +1,70 @@
+name: Deploy SIRI-SX demos to GitHub Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out SIRI-SX hub
+        uses: actions/checkout@v4
+
+      - name: Check out situation monitor
+        uses: actions/checkout@v4
+        with:
+          repository: openTdataCH/siri-sx-situation-monitor
+          ref: feature/v2
+          path: sources/monitor
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: sources/monitor/package-lock.json
+
+      - name: Install monitor dependencies
+        working-directory: sources/monitor
+        run: npm ci
+
+      - name: Build monitor
+        working-directory: sources/monitor
+        run: npm run build -- --base-href /siri-sx/monitor/
+
+      - name: Assemble Pages site
+        run: |
+          mkdir -p _site/monitor
+          cp site/index.html _site/index.html
+          cp -R sources/monitor/dist/siri-sx-browser-v2/browser/. _site/monitor/
+          touch _site/.nojekyll
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
