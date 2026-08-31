@@ -44,9 +44,10 @@ jobs:
 
       - name: Assemble Pages site
         run: |
-          mkdir -p _site/monitor
+          mkdir -p _site/monitor/setup
           cp site/index.html _site/index.html
           cp -R sources/monitor/dist/siri-sx-browser-v2/browser/. _site/monitor/
+          cp _site/monitor/index.html _site/monitor/setup/index.html
           touch _site/.nojekyll
 
       - name: Configure GitHub Pages
