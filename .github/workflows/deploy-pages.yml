@@ -44,6 +44,8 @@ jobs:
 
       - name: Assemble Pages site
         run: |
+          mkdir -p _site
+          
           cp site/index.html _site/index.html
           cp -R sources/monitor/dist/siri-sx-browser-v2/browser/. _site/monitor/
           
