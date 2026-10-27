@@ -24,7 +24,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: openTdataCH/siri-sx-situation-monitor
-          ref: feature/v2
           path: sources/monitor
 
       - name: Set up Node.js
